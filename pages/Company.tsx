@@ -8,7 +8,9 @@ import {
   Stamp, 
   Users,
   FileText,
-  CreditCard
+  CreditCard,
+  ArrowUpRight,
+  ArrowDownLeft
 } from 'lucide-react';
 
 const Company: React.FC = () => {
@@ -34,27 +36,51 @@ const Company: React.FC = () => {
         </button>
       </div>
 
-      {/* 2. Bank Account Card (Dark Blue) */}
+      {/* 2. Bank Account Card (Dark Blue - Enhanced with Financial Data) */}
       <div className="bg-[#1e3a8a] rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
-        {/* Decorative circle */}
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+        {/* Background Decor */}
+        <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
         
-        <div className="flex items-center gap-2 mb-6 opacity-90">
-          <Landmark size={18} />
-          <span className="text-sm font-medium tracking-wide">企业基本户</span>
+        {/* Header: Bank Name & Status */}
+        <div className="flex justify-between items-start mb-6 relative z-10">
+             <div>
+                <div className="flex items-center gap-2 opacity-90 mb-1">
+                   <Landmark size={18} />
+                   <span className="text-sm font-medium tracking-wide">招商银行上海分行</span>
+                </div>
+                <div className="text-xs font-mono opacity-60 tracking-wider">6222 **** **** 8888</div>
+             </div>
+             <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.8)]"></span>
+                <span className="text-[10px] font-bold text-emerald-100">正常</span>
+             </div>
         </div>
 
-        <div className="text-3xl font-mono font-medium tracking-widest mb-8 text-shadow-sm">
-          6222 **** **** 8888
+        {/* Balance Display */}
+        <div className="relative z-10 mb-6">
+             <p className="text-xs text-blue-200 font-medium mb-1">账户可用余额</p>
+             <h2 className="text-3xl font-bold font-mono tracking-tight text-white">
+                ¥ 142,590<span className="text-xl text-blue-200">.00</span>
+             </h2>
         </div>
 
-        <div className="flex justify-between items-end">
-          <div className="text-sm opacity-80 font-medium">招商银行上海分行</div>
-          <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/20 transition-colors cursor-pointer">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
-            <span className="text-xs font-medium text-emerald-100">正常状态</span>
-            <ChevronRight size={12} className="text-white/50 ml-1" />
-          </div>
+        {/* Income/Expense Section */}
+        <div className="relative z-10 flex items-center gap-8 border-t border-white/10 pt-4">
+            <div>
+                <div className="flex items-center gap-1.5 text-emerald-300 mb-1">
+                    <ArrowDownLeft size={14} strokeWidth={2.5} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider opacity-90">本月收入</span>
+                </div>
+                <p className="font-bold text-lg leading-none tracking-tight">¥ 62,000</p>
+            </div>
+            <div className="w-px h-8 bg-white/10"></div>
+            <div>
+                <div className="flex items-center gap-1.5 text-blue-200 mb-1">
+                    <ArrowUpRight size={14} strokeWidth={2.5} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider opacity-90">本月支出</span>
+                </div>
+                <p className="font-bold text-lg leading-none tracking-tight text-white/90">¥ 29,000</p>
+            </div>
         </div>
       </div>
 

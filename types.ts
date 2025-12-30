@@ -22,7 +22,7 @@ export interface Task {
   deadline: string;
   type: TaskType;
   priority: 'HIGH' | 'MEDIUM' | 'LOW';
-  source: 'HR Outsourcing' | 'Finance Outsourcing';
+  source: 'HR Outsourcing' | 'Finance Outsourcing' | 'Internal OA';
 }
 
 export interface Transaction {

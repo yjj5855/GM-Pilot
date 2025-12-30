@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Banknote, 
   FileCheck, 
@@ -17,7 +18,9 @@ import {
   FileSignature,
   Ticket,
   CreditCard,
-  History
+  History,
+  Users,
+  Activity
 } from 'lucide-react';
 
 // Define the structure for categorized menu items
@@ -43,28 +46,27 @@ const serviceGroups: ServiceGroup[] = [
     themeColor: 'blue',
     items: [
       { 
-        id: 'hr-roster', 
-        label: '花名册', 
-        iconName: 'Contact',
+        id: 'hr-emp', 
+        label: '员工管理', 
+        iconName: 'Users',
         badge: { text: '32人', color: 'bg-blue-600 text-white' }
-      },
-      { id: 'hr-1', label: '工资发放', iconName: 'Banknote' },
-      { id: 'hr-2', label: '个税申报', iconName: 'FileCheck' },
-      { id: 'hr-emp', label: '员工管理', iconName: 'UserPlus' }, // Was 社保增减
-      { id: 'hr-4', label: '社保缴费', iconName: 'CreditCard' },
-      { id: 'hr-6', label: '合同管理', iconName: 'FileSignature' },
-      // Removed 基数调整
+      }, 
+      { id: 'hr-1', label: '薪酬', iconName: 'Banknote' }, 
+      // Removed '个税' (hr-2) as requested
+      { id: 'hr-4', label: '社保', iconName: 'CreditCard' }, 
+      { id: 'hr-6', label: '合同', iconName: 'FileSignature' }, 
     ]
   },
   {
     title: '财务税务 (Finance)',
     themeColor: 'emerald',
     items: [
-      { id: 'fn-1', label: '报税记录', iconName: 'History' }, // Was 本期报税 -> 报税记录
-      { id: 'fn-2', label: '税款缴纳', iconName: 'Calculator' },
-      { id: 'fn-3', label: '资料补交', iconName: 'FileUp' },
-      { id: 'fn-4', label: '发票管理', iconName: 'Ticket' },
-      { id: 'fn-5', label: '财税报表', iconName: 'BarChart3' },
+      { id: 'fn-flow', label: '流水', iconName: 'Activity' }, // Added Transaction Flow
+      // Removed '报税' (fn-1) as requested
+      { id: 'fn-2', label: '税款', iconName: 'Calculator' }, 
+      { id: 'fn-3', label: '凭证', iconName: 'FileUp' }, 
+      { id: 'fn-4', label: '发票', iconName: 'Ticket' }, 
+      { id: 'fn-5', label: '报表', iconName: 'BarChart3' }, 
     ]
   },
   {
@@ -81,6 +83,11 @@ const serviceGroups: ServiceGroup[] = [
 
 const Work: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+
+  const handleItemClick = (id: string) => {
+    navigate(`/work/${id}`);
+  };
 
   const renderIcon = (name: string, size: number = 24) => {
     const props = { size };
@@ -88,6 +95,7 @@ const Work: React.FC = () => {
       case 'Banknote': return <Banknote {...props} />;
       case 'FileCheck': return <FileCheck {...props} />;
       case 'UserPlus': return <UserPlus {...props} />;
+      case 'Users': return <Users {...props} />;
       case 'TrendingUp': return <TrendingUp {...props} />;
       case 'Receipt': return <Receipt {...props} />;
       case 'Calculator': return <Calculator {...props} />;
@@ -102,6 +110,7 @@ const Work: React.FC = () => {
       case 'Ticket': return <Ticket {...props} />;
       case 'CreditCard': return <CreditCard {...props} />;
       case 'History': return <History {...props} />;
+      case 'Activity': return <Activity {...props} />;
       default: return <FileCheck {...props} />;
     }
   };
@@ -146,6 +155,7 @@ const Work: React.FC = () => {
                         {group.items.map((item) => (
                             <div 
                                 key={item.id} 
+                                onClick={() => handleItemClick(item.id)}
                                 className="flex flex-col items-center gap-2 cursor-pointer active:opacity-60 transition-opacity group relative"
                             >
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 ${theme.iconBg} ${theme.text} group-hover:scale-105 transition-transform relative`}>
