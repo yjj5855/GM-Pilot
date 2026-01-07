@@ -3,7 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 
 const data = [
   { name: '工资薪金', value: 325000, color: '#3B82F6' }, // Blue
-  { name: '社保公积金', value: 100000, color: '#60A5FA' }, // Light Blue
+  { name: '五险一金', value: 100000, color: '#60A5FA' }, // Light Blue
   { name: '纳税总额', value: 35000, color: '#F59E0B' }, // Amber/Orange (Tax)
   { name: '外包服务费', value: 22000, color: '#8B5CF6' }, // Purple
 ];

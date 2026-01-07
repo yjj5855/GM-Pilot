@@ -53,7 +53,7 @@ const serviceGroups: ServiceGroup[] = [
       }, 
       { id: 'hr-1', label: '薪酬', iconName: 'Banknote' }, 
       // Removed '个税' (hr-2) as requested
-      { id: 'hr-4', label: '社保', iconName: 'CreditCard' }, 
+      { id: 'hr-4', label: '五险一金', iconName: 'CreditCard' }, 
       { id: 'hr-6', label: '合同', iconName: 'FileSignature' }, 
     ]
   },

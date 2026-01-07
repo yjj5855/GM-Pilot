@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ExpenditureBreakdownChart from '../components/charts/ExpenditureBreakdownChart';
 import PersonnelChart from '../components/charts/PersonnelChart';
+import CashFlowComparisonChart from '../components/charts/CashFlowComparisonChart';
 import { 
   CheckCircle2, 
   Clock, 
@@ -18,7 +19,12 @@ import {
   BarChart3,
   AlertOctagon,
   Info,
-  PieChart
+  PieChart,
+  TrendingUp,
+  TrendingDown,
+  CalendarDays,
+  Loader2,
+  Minus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -28,103 +34,104 @@ interface Alert {
   link: string;
 }
 
+interface SubItem {
+  label: string;
+  statusText?: string; // Optional now
+  statusTheme: 'blue' | 'orange' | 'green' | 'gray';
+}
+
+interface Metric {
+  label: string;
+  value: string;
+  trend?: 'up' | 'down' | 'neutral';
+  trendValue?: string;
+}
+
 interface TimelineItem {
   id: string;
   title: string;
-  tag?: string;
+  tag?: string; // Service Month Tag
   status: 'completed' | 'active' | 'pending';
-  dateLabel: string;
-  detail: string;
+  dateLabel: string; // Deadline Date
+  detail: string; // Main description text
+  metrics?: Metric[]; // New: For structured numerical data
+  subItems?: SubItem[]; // Optional list for structured data like subsidies
   alerts?: Alert[];
-  primaryAction?: {
-    label: string;
-    link: string;
-  };
+  link?: string; // Target for "View Detail"
 }
 
-// --- Tax Limit Data & Helpers ---
-interface LimitItem {
-  id: string;
-  name: string;
-  status: 'critical' | 'warning' | 'safe';
-  percent: number;
-  used: string;
-  limit: string;
-  desc: string;
-}
-
-const taxLimitData: LimitItem[] = [
-  {
-    id: '1',
-    name: '业务招待费',
-    status: 'critical',
-    percent: 105,
-    used: '48k',
-    limit: '45.6k',
-    desc: '已超限额，需纳税调整'
-  },
-  {
-    id: '2',
-    name: '职工福利费',
-    status: 'warning',
-    percent: 98,
-    used: '138k',
-    limit: '140k',
-    desc: '接近工资总额 14% 红线'
-  },
-  {
-    id: '3',
-    name: '广告宣传费',
-    status: 'safe',
-    percent: 25,
-    used: '120k',
-    limit: '450k',
-    desc: '额度充足'
-  },
-  {
-    id: '4',
-    name: '职工教育经费',
-    status: 'safe',
-    percent: 15,
-    used: '12k',
-    limit: '80k',
-    desc: '额度充足'
-  }
-];
-
+// Updated Timeline Data
 const timelineData: TimelineItem[] = [
   { 
     id: '1', 
-    title: '社保公积金', 
+    title: '薪酬发放', 
+    tag: '11月',
     status: 'completed', 
-    dateLabel: '已验收', 
-    detail: '本月增员 3 人，减员 1 人，外包已办理完毕。',
+    dateLabel: '12月10日', 
+    detail: '',
+    metrics: [
+      { label: '实发总额', value: '¥425k', trend: 'up', trendValue: '1.2%' },
+      { label: '发放人数', value: '32人', trend: 'up', trendValue: '2' }
+    ],
+    link: '/work/hr-1'
   },
   { 
     id: '2', 
-    title: '薪酬发放', 
-    tag: '12月',
+    title: '税务申报', 
+    tag: '11月',
     status: 'active', 
-    dateLabel: '截止今日 18:00', 
-    detail: '总额 ¥425,000.00，涉及 32 人。请核对发放明细。',
-    primaryAction: {
-      label: '去确认发放',
-      link: '/inbox'
-    }
+    dateLabel: '12月15日', 
+    detail: '',
+    subItems: [
+      { label: '增值税', statusTheme: 'green' },
+      { label: '城建及教育附加', statusTheme: 'gray' },
+      { label: '印花税', statusTheme: 'orange' }, 
+      { label: '个人所得税', statusTheme: 'blue' }, 
+    ],
+    link: '/work/fn-2'
   },
   { 
     id: '3', 
-    title: '个税申报', 
+    title: '五险一金缴纳', 
+    tag: '12月',
     status: 'active', 
-    dateLabel: '申报中', 
-    detail: '正计算专项附加扣除，预计明日出结果。',
+    dateLabel: '12月15日', 
+    detail: '',
+    metrics: [
+        { label: '五险缴纳', value: '¥72.5k', trend: 'up', trendValue: '1.2%' },
+        { label: '一金缴纳', value: '¥26.0k', trend: 'neutral', trendValue: '0%' }
+    ],
+    link: '/work/hr-4'
   },
   { 
     id: '4', 
-    title: '本期报税', 
+    title: '增减员与招退工', 
+    tag: '12月',
     status: 'pending', 
-    dateLabel: '预计 12/15 开启', 
-    detail: '等待财务上传月度费用单据。',
+    dateLabel: '12月25日', 
+    detail: '',
+    metrics: [
+        { label: '本月增员', value: '3人', trend: 'neutral', trendValue: '' },
+        { label: '本月减员', value: '1人', trend: 'neutral', trendValue: '' }
+    ],
+    subItems: [
+      { label: '招退工办理', statusTheme: 'gray' },
+      { label: '五险一金增减员申报', statusTheme: 'gray' }
+    ],
+    link: '/work/hr-emp'
+  },
+  { 
+    id: '5', 
+    title: '政府补助申请', 
+    tag: '12月',
+    status: 'pending', 
+    dateLabel: '12月30日', 
+    detail: '',
+    subItems: [
+      { label: '稳岗补贴', statusTheme: 'green' },
+      { label: '高新认定', statusTheme: 'orange' }
+    ],
+    link: '/work/ot-1'
   },
 ];
 
@@ -139,6 +146,7 @@ const Dashboard: React.FC = () => {
   const renderTimelineItem = (item: TimelineItem, index: number, isLast: boolean, isCompact: boolean) => {
     const hasRisk = item.alerts?.some(a => a.type === 'risk');
     const hasAction = item.alerts?.some(a => a.type === 'action');
+    const isActive = item.status === 'active';
     
     return (
       <div key={item.id} className={`relative pl-8 ${isLast ? '' : 'pb-8'}`}>
@@ -152,13 +160,13 @@ const Dashboard: React.FC = () => {
             item.status === 'completed' ? 'border-emerald-500 text-emerald-500' :
             hasRisk ? 'border-orange-500 text-orange-500' :
             hasAction ? 'border-rose-500 text-rose-500' :
-            item.status === 'active' ? 'border-blue-500 text-blue-500' :
+            isActive ? 'border-blue-500 text-blue-500' :
             'border-gray-200 text-gray-300'
         }`}>
             {item.status === 'completed' ? <CheckCircle2 size={14} fill="currentColor" className="text-white" /> :
             hasRisk ? <AlertTriangle size={12} fill="currentColor" className="text-white" /> :
             hasAction ? <FileText size={12} fill="currentColor" className="text-white" /> :
-            item.status === 'active' ? <Clock size={14} /> :
+            isActive ? <Clock size={14} /> :
             <Circle size={8} fill="currentColor" className="text-gray-100" />}
         </div>
 
@@ -170,28 +178,101 @@ const Dashboard: React.FC = () => {
                     {item.title}
                 </h3>
                 {item.tag && (
-                    <span className="text-[10px] font-bold text-gray-500 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">
                         {item.tag}
                     </span>
                 )}
               </div>
-              <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+              <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1 ${
                   item.status === 'completed' ? 'text-emerald-700 bg-emerald-50' :
                   hasAction ? 'text-rose-600 bg-rose-50' :
                   hasRisk ? 'text-orange-600 bg-orange-50' :
-                  item.status === 'active' ? 'text-blue-600 bg-blue-50' :
+                  isActive ? 'text-blue-600 bg-blue-50' :
                   'text-gray-400 bg-gray-50'
               }`}>
+                  <CalendarDays size={10} />
                   {item.dateLabel}
               </span>
             </div>
 
             <div className={`rounded-xl p-3.5 border transition-colors ${
-                hasRisk ? 'bg-orange-50/50 border-orange-100' : 'bg-gray-50/50 border-gray-100'
+                hasRisk ? 'bg-orange-50 border-orange-200' : 
+                isActive ? 'bg-blue-50 border-blue-200 shadow-sm' : 
+                'bg-gray-50/50 border-gray-100'
             }`}>
-                <p className="text-xs text-gray-600 leading-relaxed mb-2">
-                  {item.detail}
-                </p>
+                {item.detail && (
+                  <p className="text-xs text-gray-600 leading-relaxed mb-2">
+                    {item.detail}
+                  </p>
+                )}
+
+                {/* Metrics Row (Redesigned: No containers, clean typography) */}
+                {item.metrics && (
+                   <div className="flex items-center gap-6 mt-2 mb-3">
+                      {item.metrics.map((m, mIdx) => (
+                        <div key={mIdx} className="flex flex-col">
+                           <p className="text-[10px] text-gray-400 mb-0.5">{m.label}</p>
+                           <div className="flex items-baseline gap-1.5">
+                              <span className="text-lg font-bold text-gray-900 leading-none font-mono tracking-tight">{m.value}</span>
+                              {m.trend && (
+                                <div className={`flex items-center text-[10px] font-bold ${
+                                   m.trend === 'up' ? 'text-rose-600' : m.trend === 'down' ? 'text-emerald-600' : 'text-gray-400'
+                                }`}>
+                                   {m.trend === 'up' ? <ArrowUpRight size={12} strokeWidth={3} /> : 
+                                    m.trend === 'down' ? <ArrowDownLeft size={12} strokeWidth={3} /> : 
+                                    <Minus size={12} />}
+                                   {m.trendValue}
+                                </div>
+                              )}
+                           </div>
+                        </div>
+                      ))}
+                   </div>
+                )}
+
+                {/* Sub Items (e.g. Tax Status / Subsidy List) */}
+                {item.subItems && (
+                   <div className="mt-2 space-y-2 mb-3">
+                      {item.subItems.map((sub, sIdx) => {
+                         let StatusIcon = Circle;
+                         let themeClass = 'bg-gray-100 text-gray-400 border-gray-200';
+                         let iconClass = '';
+
+                         if (sub.statusTheme === 'green') {
+                            themeClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
+                            StatusIcon = CheckCircle2;
+                         } else if (sub.statusTheme === 'blue') {
+                            themeClass = 'bg-blue-100 text-blue-600 border-blue-200';
+                            StatusIcon = Loader2;
+                            iconClass = 'animate-spin';
+                         } else if (sub.statusTheme === 'orange') {
+                            themeClass = 'bg-orange-50 text-orange-600 border-orange-100';
+                            StatusIcon = AlertCircle;
+                         } else {
+                            // gray
+                            StatusIcon = Clock;
+                         }
+                         
+                         return (
+                           <div key={sIdx} className={`flex justify-between items-center text-xs pl-2 border-l-2 ${isActive ? 'border-blue-200' : 'border-gray-100'}`}>
+                              <span className="text-gray-700 font-medium">{sub.label}</span>
+                              
+                              {/* If statusText exists, show badge with text. If NOT, show icon only (as requested for Tax) */}
+                              {sub.statusText ? (
+                                <span className={`text-[10px] px-2 py-0.5 rounded border ${themeClass} flex items-center gap-1.5`}>
+                                   <StatusIcon size={10} className={iconClass} />
+                                   {sub.statusText}
+                                </span>
+                              ) : (
+                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${themeClass} ${isActive && sub.statusTheme === 'blue' ? 'bg-white' : ''}`}>
+                                   <StatusIcon size={12} className={iconClass} strokeWidth={2.5} />
+                                </div>
+                              )}
+                           </div>
+                         )
+                      })}
+                   </div>
+                )}
 
                 {/* Alerts Integration */}
                 {item.alerts && item.alerts.length > 0 && (
@@ -212,10 +293,13 @@ const Dashboard: React.FC = () => {
                     </div>
                 )}
 
-                {item.primaryAction && (
-                    <Link to={item.primaryAction.link} className="inline-flex w-full items-center justify-center gap-1.5 bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg shadow-sm shadow-blue-200 active:bg-blue-700 transition-colors mt-1">
-                      {item.primaryAction.label} <ArrowRight size={12} />
-                    </Link>
+                {/* Generic View Link (Replaces Primary Button) */}
+                {item.link && (
+                    <div className={`flex justify-end mt-2 pt-2 border-t border-dashed ${isActive ? 'border-blue-200' : 'border-gray-100/50'}`}>
+                       <Link to={item.link} className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-700 active:opacity-60 transition-colors">
+                          查看详情 <ChevronRight size={12} />
+                       </Link>
+                    </div>
                 )}
             </div>
         </div>
@@ -300,83 +384,53 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="grid gap-4">
+
+              {/* NEW: Cash Flow Comparison Chart */}
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                  <div className="flex justify-between items-center mb-4">
+                       <div className="flex items-center gap-2">
+                           <TrendingUp size={18} className="text-gray-700"/> 
+                           <h3 className="text-base font-bold text-gray-900">银行现金环比走势</h3>
+                       </div>
+                       <Link to="/work/fn-flow" className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                          <ChevronRight size={16} />
+                       </Link>
+                  </div>
+                  
+                  {/* Comparison Summary */}
+                  <div className="flex items-center gap-3 mb-2 px-1">
+                       <div className="flex items-baseline gap-1">
+                          <span className="text-2xl font-bold text-rose-600 tracking-tight">-2.3%</span>
+                       </div>
+                       <span className="text-xs text-gray-400">较上月同期 (15日)</span>
+                  </div>
+
+                  <CashFlowComparisonChart />
+                  <div className="flex gap-4 mt-2 justify-center">
+                    <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-blue-500"></span> 本月 (实线)
+                    </p>
+                    <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-gray-300"></span> 上月 (虚线)
+                    </p>
+                  </div>
+              </div>
               
               {/* Card 1: Expenditure Breakdown */}
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                  <div className="flex justify-between items-center mb-4">
-                       <div>
-                          <p className="text-xs text-gray-400 font-medium mb-1">本月支出合计</p>
-                          <p className="text-3xl font-bold text-gray-900 tracking-tight font-mono">¥ 482,000</p>
+                  <div className="flex justify-between items-center mb-2">
+                       <div className="flex items-center gap-2">
+                           <PieChart size={18} className="text-gray-700"/> 
+                           <h3 className="text-base font-bold text-gray-900">12月支出构成</h3>
                        </div>
                        <Link to="/work/fn-5" className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
                           <ChevronRight size={16} />
                        </Link>
                   </div>
-                  <div className="flex items-center gap-2 mb-2">
-                       <PieChart size={16} className="text-gray-400"/> 
-                       <h3 className="text-sm font-bold text-gray-800">支出构成</h3>
-                  </div>
                   <ExpenditureBreakdownChart />
               </div>
 
-              {/* Card 2: Tax Limit Monitoring (Refined) */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                  <div className="flex justify-between items-center mb-5">
-                      <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                          <AlertOctagon size={16} className="text-gray-500"/> 税前扣除限额监控
-                      </h3>
-                      <Link to="/work/ot-1" className="text-xs font-medium text-gray-400 hover:text-blue-600 flex items-center transition-colors">
-                          政策解读 <ChevronRight size={14}/>
-                      </Link>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                      {taxLimitData.map((item) => {
-                         const isCritical = item.status === 'critical';
-                         const isWarning = item.status === 'warning';
-                         
-                         const barColor = isCritical ? 'bg-rose-500' : isWarning ? 'bg-orange-500' : 'bg-emerald-500';
-                         const textColor = isCritical ? 'text-rose-600' : isWarning ? 'text-orange-600' : 'text-emerald-600';
-                         // Subtle background only for alerts to keep it clean
-                         const containerClass = isCritical 
-                           ? 'bg-rose-50/40 border-rose-100' 
-                           : isWarning 
-                           ? 'bg-orange-50/40 border-orange-100' 
-                           : 'bg-white border-gray-100';
-
-                         return (
-                           <div key={item.id} className={`rounded-xl border p-3 flex flex-col justify-between h-24 ${containerClass}`}>
-                              {/* Header */}
-                              <div className="flex justify-between items-start mb-2">
-                                  <span className="text-xs font-bold text-gray-700 leading-tight">{item.name}</span>
-                                  <span className={`text-xs font-bold font-mono ${textColor}`}>{item.percent}%</span>
-                              </div>
-                              
-                              {/* Progress & Stats */}
-                              <div className="mt-auto">
-                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden mb-2">
-                                    <div 
-                                      className={`h-full rounded-full ${barColor}`} 
-                                      style={{ width: `${Math.min(item.percent, 100)}%` }}
-                                    ></div>
-                                </div>
-                                
-                                <div className="flex justify-between items-center">
-                                     <div className="flex items-center gap-1">
-                                        <span className="text-[10px] text-gray-400">已用</span>
-                                        <span className="text-[10px] font-bold text-gray-600 font-mono">{item.used}</span>
-                                     </div>
-                                     <div className="flex items-center gap-1">
-                                        <span className="text-[10px] text-gray-400">/</span>
-                                        <span className="text-[10px] font-medium text-gray-400 font-mono">{item.limit}</span>
-                                     </div>
-                                </div>
-                              </div>
-                           </div>
-                         );
-                      })}
-                  </div>
-              </div>
+              {/* Tax Limit Monitoring Removed as requested */}
 
               {/* Card 3: Personnel Card */}
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">

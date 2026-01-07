@@ -50,7 +50,7 @@ const MOCK_PAYROLL_HISTORY = [
 const MOCK_PAYROLL_BREAKDOWN = [
   { name: '基本工资', value: 280000, color: '#3B82F6' },
   { name: '绩效奖金', value: 85000, color: '#8B5CF6' },
-  { name: '社保公积金', value: 50000, color: '#10B981' },
+  { name: '五险一金', value: 50000, color: '#10B981' },
   { name: '个税', value: 10000, color: '#F59E0B' },
 ];
 
@@ -144,7 +144,7 @@ const PayrollView = () => (
         </div>
         <div className="w-px h-3 bg-white/20 my-auto"></div>
         <div className="flex items-center gap-1">
-           <span className="opacity-70">社保:</span>
+           <span className="opacity-70">五险:</span>
            <span className="font-bold">¥ 50k</span>
         </div>
         <div className="w-px h-3 bg-white/20 my-auto"></div>
@@ -330,7 +330,7 @@ const SocialSecurityView = () => (
             <div className="relative z-10">
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <p className="text-emerald-100 text-xs font-medium mb-1">12月 社保公积金缴纳总额</p>
+                        <p className="text-emerald-100 text-xs font-medium mb-1">12月 五险一金缴纳总额</p>
                         <h2 className="text-3xl font-bold font-mono tracking-tight">¥ {MOCK_SOCIAL_SECURITY.total.toLocaleString()}</h2>
                     </div>
                     <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm border border-white/10">
@@ -859,7 +859,7 @@ const WorkDetail: React.FC = () => {
         // HR
         case 'hr-1': return { title: '薪酬管理', component: <PayrollView /> };
         case 'hr-emp': return { title: '员工管理', component: <EmployeeView /> };
-        case 'hr-4': return { title: '社保缴纳', component: <SocialSecurityView /> }; // Updated
+        case 'hr-4': return { title: '五险一金', component: <SocialSecurityView /> }; // Updated
         case 'hr-6': return { title: '合同管理', component: <ContractView /> }; // Updated
         
         // Finance
