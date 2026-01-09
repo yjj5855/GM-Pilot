@@ -21,7 +21,8 @@ import {
   MoreHorizontal,
   Wallet,
   TrendingUp,
-  PieChart
+  PieChart,
+  ChevronDown
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -140,10 +141,10 @@ const Dashboard: React.FC = () => {
     const isCompleted = item.status === 'completed';
     
     return (
-      <div key={item.id} className="relative pl-6 pb-0">
+      <div key={item.id} className="relative pl-6 pb-6">
         {/* Connector Line */}
         {!isLast && (
-          <div className={`absolute left-[9px] top-6 bottom-0 w-[2px] ${isCompleted ? 'bg-emerald-100' : isActive ? 'bg-blue-100' : 'bg-slate-100'}`}></div>
+          <div className={`absolute left-[9px] top-6 -bottom-1 w-[2px] ${isCompleted ? 'bg-emerald-100' : isActive ? 'bg-blue-100' : 'bg-slate-100'}`}></div>
         )}
 
         {/* Status Icon */}
@@ -160,7 +161,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Content Card */}
-        <div className={`mb-6 group ${isLast ? '' : ''}`}>
+        <div className={`group`}>
             {/* Header Line */}
             <div className="flex justify-between items-center mb-2 pl-2">
               <div className="flex items-center gap-2">
@@ -273,43 +274,74 @@ const Dashboard: React.FC = () => {
         <section className="bg-white rounded-[20px] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
             {/* Header */}
             <div 
-                className="px-6 py-4 border-b border-slate-50 flex justify-between items-center cursor-pointer active:bg-slate-50 transition-colors"
+                className="px-6 py-4 border-b border-slate-50 flex justify-between items-center cursor-pointer active:bg-slate-50 transition-colors group"
                 onClick={() => setIsTimelineExpanded(!isTimelineExpanded)}
             >
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                        <Clock size={16} strokeWidth={2.5}/>
+                <div className="flex items-center gap-4">
+                    {/* Circular Progress (Left Aligned with Timeline) */}
+                    <div className="relative w-10 h-10 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 40 40">
+                            <circle
+                                cx="20"
+                                cy="20"
+                                r="16"
+                                stroke="#F1F5F9"
+                                strokeWidth="3"
+                                fill="none"
+                            />
+                            <circle
+                                cx="20"
+                                cy="20"
+                                r="16"
+                                stroke="#3B82F6"
+                                strokeWidth="3"
+                                fill="none"
+                                strokeDasharray={2 * Math.PI * 16}
+                                strokeDashoffset={2 * Math.PI * 16 * (1 - 0.25)}
+                                strokeLinecap="round"
+                                className="transition-all duration-1000 ease-out"
+                            />
+                        </svg>
+                        <span className="absolute text-[9px] font-bold text-slate-700 font-mono">25%</span>
                     </div>
+
                     <div>
-                        <h2 className="font-bold text-slate-900 text-sm">本月交付进度</h2>
-                        <div className="h-1 w-24 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
-                            <div className="h-full bg-blue-500 w-1/4 rounded-full"></div>
-                        </div>
+                        <h2 className="font-bold text-slate-900 text-base">本月交付进度</h2>
+                        <p className="text-xs text-slate-400 font-medium mt-0.5">
+                            <span className="text-blue-600 font-bold">2</span> 项进行中
+                        </p>
                     </div>
                 </div>
-                <div className="text-right">
-                    <p className="text-lg font-bold text-blue-600 font-mono leading-none">25%</p>
-                </div>
+                
+                <ChevronDown 
+                    size={18} 
+                    className={`text-slate-300 transition-transform duration-300 ${isTimelineExpanded ? 'rotate-180' : ''}`} 
+                />
             </div>
 
             {/* Body */}
-            <div className="p-6 pb-2">
-                {isTimelineExpanded ? (
-                    timelineData.map((item, index) => renderTimelineItem(item, index, index === timelineData.length - 1, false))
-                ) : (
-                    collapsedViewItems.map((item, index) => renderTimelineItem(item, index, index === collapsedViewItems.length - 1, true))
-                )}
-                
-                {!isTimelineExpanded && collapsedViewItems.length < timelineData.length && (
-                    <div className="text-center -mt-2 mb-4">
-                        <button 
-                            onClick={() => setIsTimelineExpanded(true)}
-                            className="text-xs font-bold text-slate-400 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto py-2 transition-colors"
-                        >
-                            展开剩余节点 <MoreHorizontal size={12}/>
-                        </button>
-                    </div>
-                )}
+            <div className="p-6 pb-4">
+                {/* Add pl-2.5 to align w-5 icons with w-10 header icon (center to center) */}
+                <div className="pl-2.5">
+                    {isTimelineExpanded ? (
+                        timelineData.map((item, index) => renderTimelineItem(item, index, index === timelineData.length - 1, false))
+                    ) : (
+                        collapsedViewItems.map((item, index) => renderTimelineItem(item, index, index === collapsedViewItems.length - 1, true))
+                    )}
+                    
+                    {!isTimelineExpanded && collapsedViewItems.length < timelineData.length && (
+                         <div className="pl-6">
+                            <div className="text-center -mt-2 mb-2 pt-4 border-t border-dashed border-slate-100">
+                                <button 
+                                    onClick={() => setIsTimelineExpanded(true)}
+                                    className="text-xs font-bold text-slate-400 hover:text-blue-600 flex items-center justify-center gap-1 mx-auto py-2 transition-colors"
+                                >
+                                    展开剩余节点 <MoreHorizontal size={12}/>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </section>
 
@@ -322,29 +354,27 @@ const Dashboard: React.FC = () => {
 
           {/* Cash Flow Card */}
           <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] border border-slate-100">
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-center mb-2">
                    <div className="flex items-center gap-3">
                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                            <Wallet size={20} strokeWidth={2} />
                        </div>
                        <div>
-                           <p className="text-xs text-slate-400 font-medium">现金流监控</p>
-                           <h3 className="text-sm font-bold text-slate-900">银行结余走势</h3>
+                           <p className="text-xs text-slate-400 font-medium mb-0.5">现金流监控</p>
+                           <div className="flex items-center gap-2">
+                               <h3 className="text-sm font-bold text-slate-900">银行结余走势</h3>
+                               <div className="flex items-center gap-1 text-[10px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100">
+                                   <TrendingUp size={10} /> -2.3%
+                               </div>
+                           </div>
                        </div>
                    </div>
                    <Link to="/work/fn-flow" className="p-2 rounded-full hover:bg-slate-50 text-slate-300 transition-colors">
                       <ChevronRight size={20} />
                    </Link>
               </div>
-              
-              <div className="flex items-end gap-3 mb-6">
-                   <span className="text-3xl font-bold text-slate-900 font-mono tracking-tighter">¥142.5k</span>
-                   <div className="flex items-center gap-1 text-xs font-bold text-rose-500 bg-rose-50 px-2 py-1 rounded-lg border border-rose-100 mb-1">
-                       <TrendingUp size={12} /> -2.3% <span className="text-rose-300 font-normal">环比</span>
-                   </div>
-              </div>
 
-              <div className="h-40 -mx-2">
+              <div className="h-32 -mx-2">
                 <CashFlowComparisonChart />
               </div>
           </div>

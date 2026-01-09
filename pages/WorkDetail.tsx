@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MoreHorizontal } from 'lucide-react';
@@ -38,7 +39,7 @@ const WorkDetail: React.FC = () => {
 
         // HR
         case 'hr-1': return { title: '薪酬管理', component: <Payroll /> };
-        case 'hr-emp': return { title: '员工管理', component: <Employee /> };
+        case 'hr-emp': return { title: '员工', component: <Employee /> };
         case 'hr-4': return { title: '五险一金', component: <SocialSecurity /> };
         case 'hr-6': return { title: '合同管理', component: <Contract /> };
         

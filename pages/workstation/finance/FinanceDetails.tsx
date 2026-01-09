@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { 
   Printer, Download, MessageSquare, Send, 
   CheckCircle2, AlertCircle, FileText, Clock, Building2, 
   Activity, Landmark, Receipt, Info, Paperclip, 
   FileImage, AlertTriangle, ChevronRight,
-  ArrowUpRight, ScanLine
+  ArrowUpRight, ScanLine, User
 } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
@@ -40,6 +41,13 @@ const AttachmentThumb = ({ type, name, size }: { type: string, name: string, siz
 // --- 1. Reconciliation Detail ---
 
 export const ReconciliationDetail = ({ item, onBack }: { item: any, onBack: () => void }) => {
+    // Mock Chat History
+    const chatHistory = [
+        { id: 1, role: 'agent', name: '代理会计', time: '10:30', content: '这笔大额支出是支付给谁的？系统里没找到对应的合同，请确认是否为预付款。' },
+        { id: 2, role: 'user', name: '我', time: '10:35', content: '这是预付给上海千机科技的技术服务费，合同还在走流程，下周补上。' },
+        { id: 3, role: 'agent', name: '代理会计', time: '10:36', content: '收到，那我先挂账在预付账款科目，等发票和合同到了再转结。' },
+    ];
+
     return (
         <DetailLayout 
             title="差异处理" 
@@ -90,23 +98,28 @@ export const ReconciliationDetail = ({ item, onBack }: { item: any, onBack: () =
                  </div>
             </div>
 
-            {/* Communication */}
+            {/* Communication Record */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                  <div className="p-4 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
                      <h4 className="text-xs font-bold text-gray-700 flex items-center gap-2">
                         <MessageSquare size={14} /> 沟通记录
                      </h4>
                  </div>
-                 <div className="p-5 space-y-4">
-                     <div className="flex gap-3">
-                         <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 border border-indigo-100">
-                             代
-                         </div>
-                         <div className="bg-gray-100 rounded-2xl rounded-tl-none p-3.5 text-xs text-gray-700 leading-relaxed max-w-[85%]">
-                             <p className="font-bold text-gray-900 mb-1">代理会计</p>
-                             这笔大额支出是支付给谁的？系统里没找到对应的合同，请确认是否为预付款。
-                         </div>
-                     </div>
+                 <div className="p-5 space-y-4 max-h-[300px] overflow-y-auto">
+                     {chatHistory.map(msg => (
+                        <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 border ${msg.role === 'user' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                                {msg.role === 'user' ? <User size={14}/> : '代'}
+                            </div>
+                            <div className={`rounded-2xl p-3 text-xs leading-relaxed max-w-[85%] shadow-sm ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-gray-100 text-gray-700 rounded-tl-none'}`}>
+                                <div className={`flex justify-between items-baseline mb-1 gap-2 ${msg.role === 'user' ? 'text-indigo-100' : 'text-gray-500'}`}>
+                                    <span className="font-bold">{msg.name}</span>
+                                    <span className="text-[10px] opacity-80">{msg.time}</span>
+                                </div>
+                                {msg.content}
+                            </div>
+                        </div>
+                     ))}
                  </div>
                  <div className="p-3 border-t border-gray-100 flex gap-2">
                      <input className="flex-1 bg-gray-50 rounded-xl px-4 py-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 transition-all placeholder-gray-400" placeholder="输入回复内容..." />

@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Search, Phone, Mail, MapPin, Briefcase, Calendar, ChevronRight } from 'lucide-react';
+import { Search, Phone, Mail, MapPin, Briefcase, Calendar, ChevronRight, UserPlus, X, Check } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
 // --- Types & Data ---
@@ -10,6 +11,97 @@ const MOCK_EMPLOYEES = [
   { id: 3, name: '王强', dept: '技术部', role: '前端开发', status: '试用', joinDate: '2023-11-10', phone: '15000000000', email: 'wangqiang@company.com', idCard: '32050119950808****', contractEnd: '2026-11-10' },
   { id: 4, name: '陈杰', dept: '设计部', role: 'UI设计师', status: '正式', joinDate: '2022-09-01', phone: '13711112222', email: 'chenjie@company.com', idCard: '31011519961212****', contractEnd: '2025-09-01' },
 ];
+
+// --- Level 3: Add Employee View ---
+
+const AddEmployeeView = ({ onBack, onSave }: { onBack: () => void, onSave: (emp: any) => void }) => {
+    const [name, setName] = useState('');
+    const [dept, setDept] = useState('');
+    const [role, setRole] = useState('');
+    const [phone, setPhone] = useState('');
+    const [joinDate, setJoinDate] = useState(new Date().toISOString().split('T')[0]);
+
+    const handleSave = () => {
+        if (!name || !dept || !role) return;
+        const newEmp = {
+            id: Date.now(),
+            name,
+            dept,
+            role,
+            phone,
+            joinDate,
+            status: '试用',
+            email: `${name}@company.com`,
+            idCard: '310XXXXXXXXXXXXX',
+            contractEnd: '2026-01-01'
+        };
+        onSave(newEmp);
+    };
+
+    return (
+        <DetailLayout title="添加新员工" onBack={onBack}>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+                <div>
+                    <label className="text-xs font-bold text-gray-500 mb-2 block">姓名</label>
+                    <input 
+                        value={name} onChange={e => setName(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:border-indigo-500 outline-none transition-colors"
+                        placeholder="请输入姓名"
+                    />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="text-xs font-bold text-gray-500 mb-2 block">部门</label>
+                        <input 
+                            value={dept} onChange={e => setDept(e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:border-indigo-500 outline-none transition-colors"
+                            placeholder="如：技术部"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-gray-500 mb-2 block">职位</label>
+                        <input 
+                            value={role} onChange={e => setRole(e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:border-indigo-500 outline-none transition-colors"
+                            placeholder="如：工程师"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="text-xs font-bold text-gray-500 mb-2 block">手机号码</label>
+                    <input 
+                        value={phone} onChange={e => setPhone(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:border-indigo-500 outline-none transition-colors"
+                        placeholder="13800000000"
+                    />
+                </div>
+
+                <div>
+                    <label className="text-xs font-bold text-gray-500 mb-2 block">入职日期</label>
+                    <div className="relative">
+                        <input 
+                            type="date"
+                            value={joinDate} onChange={e => setJoinDate(e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:border-indigo-500 outline-none transition-colors appearance-none"
+                        />
+                        <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    </div>
+                </div>
+
+                <div className="pt-4">
+                    <button 
+                        onClick={handleSave}
+                        className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+                    >
+                        <Check size={18} /> 确认添加
+                    </button>
+                </div>
+            </div>
+        </DetailLayout>
+    );
+};
 
 // --- Level 3: Detail View ---
 
@@ -85,8 +177,16 @@ const EmployeeDetail = ({ employee, onBack }: { employee: typeof MOCK_EMPLOYEES[
 // --- Level 2: Dashboard View ---
 
 const Employee: React.FC = () => {
-    const [selectedEmp, setSelectedEmp] = useState<typeof MOCK_EMPLOYEES[0] | null>(null);
+    const [employees, setEmployees] = useState(MOCK_EMPLOYEES);
+    const [selectedEmp, setSelectedEmp] = useState<any | null>(null);
+    const [isAdding, setIsAdding] = useState(false);
 
+    const handleAddEmployee = (newEmp: any) => {
+        setEmployees([newEmp, ...employees]);
+        setIsAdding(false);
+    };
+
+    if (isAdding) return <AddEmployeeView onBack={() => setIsAdding(false)} onSave={handleAddEmployee} />;
     if (selectedEmp) return <EmployeeDetail employee={selectedEmp} onBack={() => setSelectedEmp(null)} />;
 
     return (
@@ -95,11 +195,11 @@ const Employee: React.FC = () => {
             <div className="grid grid-cols-3 gap-3">
                 <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center">
                     <p className="text-[10px] text-gray-400 mb-1">在职员工</p>
-                    <p className="text-lg font-bold text-gray-900">32</p>
+                    <p className="text-lg font-bold text-gray-900">{employees.length}</p>
                 </div>
                 <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center">
                     <p className="text-[10px] text-gray-400 mb-1">本月入职</p>
-                    <p className="text-lg font-bold text-emerald-600">+3</p>
+                    <p className="text-lg font-bold text-emerald-600">+{3 + (employees.length - MOCK_EMPLOYEES.length)}</p>
                 </div>
                 <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-center">
                     <p className="text-[10px] text-gray-400 mb-1">本月离职</p>
@@ -107,15 +207,23 @@ const Employee: React.FC = () => {
                 </div>
             </div>
 
-            {/* Search */}
-            <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center gap-2">
-                <Search size={16} className="text-gray-400" />
-                <input type="text" placeholder="搜索姓名、部门..." className="flex-1 text-xs outline-none text-gray-700 placeholder-gray-300"/>
+            {/* Search & Add */}
+            <div className="flex gap-3">
+                <div className="flex-1 bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center gap-2">
+                    <Search size={16} className="text-gray-400" />
+                    <input type="text" placeholder="搜索姓名、部门..." className="flex-1 text-xs outline-none text-gray-700 placeholder-gray-300"/>
+                </div>
+                <button 
+                    onClick={() => setIsAdding(true)}
+                    className="bg-indigo-600 text-white w-12 rounded-xl flex items-center justify-center shadow-sm shadow-indigo-200 active:scale-95 transition-transform"
+                >
+                    <UserPlus size={20} />
+                </button>
             </div>
 
             {/* List */}
             <div className="space-y-3 pb-4">
-                {MOCK_EMPLOYEES.map(emp => (
+                {employees.map(emp => (
                     <div 
                         key={emp.id} 
                         onClick={() => setSelectedEmp(emp)}

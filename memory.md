@@ -1,3 +1,4 @@
+
 # GM Pilot Project Memory
 
 > 记录本项目的关键开发标准、设计规范及代码习惯，用于指导后续开发。
@@ -48,6 +49,13 @@
 - **数据字体**: 金额、日期、ID 使用 `font-mono`。
 - **Header Style**: Sticky header 配合 `backdrop-blur` 效果。
 
+### 3.4 交互模式 (New)
+- **File Download Pattern (文件下载)**: 
+    - **禁止直接下载**: 列表项点击后不能直接触发下载。
+    - **中间页原则**: 必须先进入一个概览页 (Preview Overlay)，展示文件元数据（大小、时间、预览图）后，再提供明确的下载按钮。
+- **Communication UI (沟通记录)**:
+    - 使用对话式气泡布局 (Chat Bubble Layout) 替代静态文本块，区分“我”与“代理/系统”的角色，增强互动感。
+
 ## 4. 组件开发习惯 (Coding Habits)
 
 ### 4.1 通用组件 `DetailLayout`
@@ -88,6 +96,8 @@
     - **更新时机**: 完成功能开发后，将对应项标记为 `[x]`；或拆解出新需求时添加新项。
 
 ## 7. 最近更新记录 (Recent Updates)
+- **UX Update**: 统一了文件下载交互，增加了中间预览页。
+- **UI Update**: 优化了沟通记录 (Communication Record) 的视觉样式，采用对话式布局。
 - **Documentation**: 完善了 `docs/` 目录文件的维护指南。
 - **UI Upgrade**: Dashboard 视觉全面升级（Glassmorphism Header, Cleaner Cards, Enhanced Timeline）。
 - **Inbox**: 新增“工资发放确认”及“入职任务聚合”。

@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { ArrowUpRight, ArrowDownLeft, ChevronRight, UserPlus, UserMinus, FileText } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, ChevronRight, UserPlus, UserMinus, FileText, Download } from 'lucide-react';
 import { DetailLayout } from '../../../components/DetailLayout';
 
 // --- Data ---
@@ -18,7 +19,41 @@ const MOCK_SOCIAL_DATA = {
     ]
 };
 
-// --- Level 3: Change Details ---
+const MOCK_DOCS = [
+    { id: 'd1', title: '11月社保缴纳回单', size: '1.2MB', date: '2023-12-10' },
+    { id: 'd2', title: '11月公积金汇缴书', size: '0.8MB', date: '2023-12-10' }
+];
+
+// --- Level 3 Details ---
+
+const SocialDocDetail = ({ doc, onBack }: { doc: any, onBack: () => void }) => {
+    return (
+        <DetailLayout title={doc.title} onBack={onBack} tag={{ label: 'PDF', color: 'text-gray-500', bg: 'bg-gray-100' }}>
+             <div className="flex-1 flex flex-col items-center justify-center py-8">
+                 <div className="w-48 aspect-[3/4] bg-white shadow-xl border border-gray-200 rounded-lg flex flex-col items-center justify-center mb-8 relative overflow-hidden group">
+                     <div className="absolute inset-0 bg-[#FAFAFA] opacity-50"></div>
+                     <FileText size={48} className="text-gray-300 relative z-10" />
+                     <p className="text-xs text-gray-400 mt-2 relative z-10 font-bold">PREVIEW</p>
+                 </div>
+                 
+                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 w-full overflow-hidden px-6 py-2 mb-6">
+                     <div className="flex justify-between py-3 border-b border-gray-50">
+                        <span className="text-sm text-gray-500">文件大小</span>
+                        <span className="text-sm font-bold font-mono text-gray-900">{doc.size}</span>
+                     </div>
+                     <div className="flex justify-between py-3">
+                        <span className="text-sm text-gray-500">生成时间</span>
+                        <span className="text-sm font-bold font-mono text-gray-900">{doc.date}</span>
+                     </div>
+                 </div>
+
+                 <button className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <Download size={18} /> 下载文件
+                 </button>
+            </div>
+        </DetailLayout>
+    )
+};
 
 const SocialChangeDetail = ({ onBack }: { onBack: () => void }) => {
     return (
@@ -81,8 +116,10 @@ const SocialChangeDetail = ({ onBack }: { onBack: () => void }) => {
 
 const SocialSecurity: React.FC = () => {
     const [showDetail, setShowDetail] = useState(false);
+    const [selectedDoc, setSelectedDoc] = useState<any>(null);
 
     if (showDetail) return <SocialChangeDetail onBack={() => setShowDetail(false)} />;
+    if (selectedDoc) return <SocialDocDetail doc={selectedDoc} onBack={() => setSelectedDoc(null)} />;
 
     return (
         <div className="space-y-6 animate-fade-in">
@@ -133,11 +170,12 @@ const SocialSecurity: React.FC = () => {
             <div>
                  <h3 className="text-sm font-bold text-gray-900 mb-3 px-1">缴纳凭证</h3>
                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                     {[
-                         { title: '11月社保缴纳回单', size: '1.2MB' },
-                         { title: '11月公积金汇缴书', size: '0.8MB' }
-                     ].map((doc, idx) => (
-                         <div key={idx} className="p-4 border-b border-gray-50 last:border-0 flex items-center justify-between active:bg-gray-50 transition-colors">
+                     {MOCK_DOCS.map((doc, idx) => (
+                         <div 
+                            key={doc.id}
+                            onClick={() => setSelectedDoc(doc)}
+                            className="p-4 border-b border-gray-50 last:border-0 flex items-center justify-between active:bg-gray-50 transition-colors cursor-pointer"
+                         >
                              <div className="flex items-center gap-3">
                                  <FileText size={18} className="text-gray-400" />
                                  <div>
@@ -145,7 +183,7 @@ const SocialSecurity: React.FC = () => {
                                      <p className="text-[10px] text-gray-400">{doc.size}</p>
                                  </div>
                              </div>
-                             <span className="text-xs font-bold text-indigo-600">下载</span>
+                             <ChevronRight size={16} className="text-gray-300" />
                          </div>
                      ))}
                  </div>

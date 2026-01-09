@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -69,7 +70,7 @@ const serviceGroups: ServiceGroup[] = [
     items: [
       { 
         id: 'hr-emp', 
-        label: '员工管理', 
+        label: '员工', 
         iconName: 'Users',
         badge: { text: '32人', color: 'bg-blue-600 text-white' }
       }, 

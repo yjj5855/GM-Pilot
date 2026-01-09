@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Download, ChevronRight, Banknote, User, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Download, ChevronRight, Banknote, User, AlertCircle, CheckCircle2, FileSpreadsheet, FileText } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { DetailLayout } from '../../../components/DetailLayout';
 
@@ -26,9 +27,94 @@ const MOCK_EMPLOYEE_PAYROLL = [
     { id: 5, name: '刘思思', dept: '运营部', base: '14,000', bonus: '3,000', tax: '400', total: '16,600', status: '正常' },
 ];
 
+// --- Level 3/4 Details ---
+
+const PayslipExportDetail = ({ onBack, month }: { onBack: () => void, month: string }) => (
+    <DetailLayout 
+        title={`${month} 工资条导出`} 
+        onBack={onBack}
+        tag={{ label: 'Excel', color: 'text-emerald-600', bg: 'bg-emerald-50' }}
+    >
+        <div className="flex flex-col items-center justify-center py-10">
+            <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6 border border-emerald-100">
+                <FileSpreadsheet size={40} className="text-emerald-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">准备导出工资条</h3>
+            <p className="text-sm text-gray-500 text-center max-w-xs mb-8 leading-relaxed">
+                文件包含 {MOCK_EMPLOYEE_PAYROLL.length} 名员工的 {month} 薪资明细。<br/>敏感信息，请确保环境安全。
+            </p>
+            
+            <div className="w-full bg-white rounded-xl border border-gray-100 p-4 mb-8">
+                <div className="flex justify-between py-2 border-b border-gray-50">
+                    <span className="text-sm text-gray-500">文件格式</span>
+                    <span className="text-sm font-bold text-gray-900">XLSX (加密)</span>
+                </div>
+                <div className="flex justify-between py-2">
+                    <span className="text-sm text-gray-500">数据量</span>
+                    <span className="text-sm font-bold text-gray-900">32 条记录</span>
+                </div>
+            </div>
+
+            <button className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <Download size={18} /> 确认导出
+            </button>
+        </div>
+    </DetailLayout>
+);
+
+const ReportExportDetail = ({ onBack }: { onBack: () => void }) => (
+    <DetailLayout 
+        title="薪资报表导出" 
+        onBack={onBack}
+        tag={{ label: '多格式', color: 'text-blue-600', bg: 'bg-blue-50' }}
+    >
+        <div className="space-y-4">
+            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:border-blue-200 cursor-pointer transition-colors group">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
+                        <FileText size={24} />
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-gray-900">薪资汇总表 (PDF)</h4>
+                        <p className="text-xs text-gray-400 mt-1">适用于签字归档，包含部门汇总数据</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:border-emerald-200 cursor-pointer transition-colors group">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                        <FileSpreadsheet size={24} />
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-gray-900">薪资明细表 (Excel)</h4>
+                        <p className="text-xs text-gray-400 mt-1">适用于财务核算，包含完整计算公式</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:border-orange-200 cursor-pointer transition-colors group">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center text-orange-600 group-hover:bg-orange-100 transition-colors">
+                        <Banknote size={24} />
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-gray-900">银行代发文件 (TXT)</h4>
+                        <p className="text-xs text-gray-400 mt-1">招商银行通用代发格式</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </DetailLayout>
+);
+
 // --- Level 3: Detail View ---
 
 const PayrollDetail = ({ item, onBack }: { item: typeof MOCK_PAYROLL_HISTORY[0], onBack: () => void }) => {
+    const [showPayslipExport, setShowPayslipExport] = useState(false);
+
+    if (showPayslipExport) return <PayslipExportDetail month={item.month} onBack={() => setShowPayslipExport(false)} />;
+
     return (
         <DetailLayout
             title={`${item.month} 薪资表`}
@@ -48,7 +134,10 @@ const PayrollDetail = ({ item, onBack }: { item: typeof MOCK_PAYROLL_HISTORY[0],
                     </button>
                 </div>
             ) : (
-                <button className="w-full bg-white text-indigo-600 font-bold py-3.5 rounded-xl border border-indigo-100 flex items-center justify-center gap-2 active:scale-[0.98]">
+                <button 
+                    onClick={() => setShowPayslipExport(true)}
+                    className="w-full bg-white text-indigo-600 font-bold py-3.5 rounded-xl border border-indigo-100 flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
                     <Download size={18} /> 下载工资条 (Excel)
                 </button>
             )}
@@ -106,8 +195,10 @@ const PayrollDetail = ({ item, onBack }: { item: typeof MOCK_PAYROLL_HISTORY[0],
 
 const Payroll: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<typeof MOCK_PAYROLL_HISTORY[0] | null>(null);
+    const [showExport, setShowExport] = useState(false);
 
     if (selectedItem) return <PayrollDetail item={selectedItem} onBack={() => setSelectedItem(null)} />;
+    if (showExport) return <ReportExportDetail onBack={() => setShowExport(false)} />;
 
     return (
         <div className="space-y-6 animate-fade-in">
@@ -143,7 +234,10 @@ const Payroll: React.FC = () => {
             <div>
                 <div className="flex justify-between items-center mb-3 px-1">
                     <h3 className="text-sm font-bold text-gray-900">历史发放记录</h3>
-                    <button className="text-xs text-blue-600 flex items-center gap-1 font-medium bg-blue-50 px-2 py-1 rounded-lg">
+                    <button 
+                        onClick={() => setShowExport(true)}
+                        className="text-xs text-blue-600 flex items-center gap-1 font-medium bg-blue-50 px-2 py-1 rounded-lg"
+                    >
                         <Download size={12}/> 导出报表
                     </button>
                 </div>
